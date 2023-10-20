@@ -8,7 +8,6 @@ from homeassistant.const import (
     CONF_PASSWORD
 )
 
-from .const import DOMAIN
 
 from .const import DOMAIN, CONF_MESH_NAME, CONF_MESH_PASSWORD, CONF_MESH_KEY
 

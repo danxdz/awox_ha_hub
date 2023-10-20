@@ -1,0 +1,6 @@
+check_all:
+  description: Check for Awox updates
+install:
+  description: Install/Update specified Awox
+update_all:
+  description: Update all Awox
