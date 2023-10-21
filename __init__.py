@@ -7,7 +7,7 @@ import logging
 
 from .const import DOMAIN, CONF_MESH_NAME, CONF_MESH_PASSWORD, CONF_MESH_KEY
 
-from .awox import AwoxMeshLight as awox
+from .awox import AwoxMeshLight
 
 from homeassistant.components.light import DOMAIN as LIGHT_DOMAIN
 from homeassistant.core import HomeAssistant, ServiceCall, callback
@@ -33,16 +33,6 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     hass.data[DOMAIN] = {}
 
 
-    """Set up the an async service example component."""
-    @callback
-    def my_service(call: ServiceCall) -> None:
-        """My first service."""
-        _LOGGER.info('Received data', call.data)
-
-    # Register our service with Home Assistant.
-    hass.services.async_register(DOMAIN, 'light_switch', my_service)
-
-
     # Return boolean to indicate that initialization was successfully.
     return True
 
@@ -50,8 +40,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up awox light via a config (flow) entry."""
 
     _LOGGER.info('setup config flow entry %s', entry.data)
+    _LOGGER.info('setup config flow entry %s', entry.options)
 
-    mesh = awox(hass, entry.data[CONF_MESH_NAME], entry.data[CONF_MESH_PASSWORD], entry.data[CONF_MESH_KEY])
+
+    mesh = AwoxMeshLight(hass, entry.data[CONF_MESH_NAME], entry.data[CONF_MESH_PASSWORD], entry.data[CONF_MESH_KEY])
 
     # Make `mesh` accessible for all platforms
     hass.data[DOMAIN][entry.entry_id] = mesh

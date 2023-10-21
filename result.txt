@@ -1,0 +1,46 @@
+Trying to login to AwoX Smart Connect...
+ Username: daniel_amorim@outlook.pt
+ Processing device - 
+ {'objectId': 'OfpeYMLl3G', 'owner': 
+ {'__type': 'Pointer', 'className': '_User', 'objectId': 'F8GwIEDaPj'},
+  'address': '4027', 'displayName': 'EGLORemote', 'typedRoom': 
+  {'__type': 'Pointer', 'className': 'Room', 'objectId': 'VjguqhKFdt'}, 
+  'uuid': '3a5dcffe-fbaf-3a86-9da2-212391c332c6', 'version': '2.0.23', 
+  'room': 'Salon', 'modelName': 'ERCUm', 'macAddress': 'a4:c1:38:a7:0f:bb', 'hardwareVersion': '1.0', 'syncable': True, 
+  'friendlyName': 'EGLORemote', 'provider': '', 'vendor': 'Eglo', 'type': '.ble.tlmesh.sensor.rcu.', 
+  'createdAt': '2020-04-25T12:45:08.993Z', 'updatedAt': '2020-04-25T12:45:17.786Z', 'ACL': 
+  {'F8GwIEDaPj': {'read': True, 'write': True}}}
+ Processing device - 
+ {'objectId': 'NgATrE1R6i', 'address': '4934', 'modelName': 'ESMLm-c9', 
+ 'friendlyName': 'EGLOBulb', 'macAddress': 'a4:c1:38:66:13:46', 'version': '2.2.6',
+  'uuid': '8d48f179-2de2-3104-ac8f-de17b1ef2618', 'typedRoom': {'__type': 'Pointer', 'className': 'Room', 'objectId': 'VjguqhKFdt'},
+   'room': 'Salon', 'displayName': 'EGLOBulb', 'owner': {'__type': 'Pointer', 'className': '_User', 'objectId': 'F8GwIEDaPj'}, 
+   'syncable': True, 'createdAt': '2017-05-07T18:48:46.274Z', 'updatedAt': '2020-04-17T07:45:56.626Z', 'hardwareVersion': '1.1',
+    'provider': 'BLELight', 'vendor': 'AwoxByEglo', 'type': '.ble.tlmesh.light.switch.color.white.dimming.temperature.', 
+    'ACL': {'F8GwIEDaPj': {'read': True, 'write': True}}}
+ Processing device -
+  {'objectId': '7L4JjAEHcY', 'address': '10776', 'uuid': 'c434667e-4973-3864-8a53-040099b98c17', 
+  'typedRoom': {'__type': 'Pointer', 'className': 'Room', 'objectId': 'LEGkGZtXYn'}, 'room': 'Chambre', 'displayName': 
+  'EGLO Surface', 'owner': {'__type': 'Pointer', 'className': '_User', 'objectId': 'F8GwIEDaPj'}, 
+  'modelName': 'EFueva_225s', 'friendlyName': 'EGLO Surface', 'version': '1.3.3', 'macAddress': 
+  'a4:c1:38:77:2a:18', 'hardwareVersion': '1.0', 'syncable': True, 'createdAt': '2017-11-15T22:21:03.359Z',
+   'updatedAt': '2018-07-21T02:14:52.244Z', 'provider': 'BLELight', 'vendor': 'Eglo', 'type': '.ble.tlmesh.light.switch.color.white.dimming.temperature.',
+    'ACL': {'F8GwIEDaPj': {'read': True, 'write': True}}}
+ Processing device -
+  {'objectId': 'DXfxDx8EwY', 'owner': {'__type': 'Pointer', 'className': '_User', 'objectId': 'F8GwIEDaPj'},
+   'address': '19247', 'displayName': 'EGLOPanel', 'typedRoom': {'__type': 'Pointer', 'className': 'Room', 
+   'objectId': 'VjguqhKFdt'}, 'uuid': 'd2a682c0-15c6-3410-8d17-e046820e105f', 'version': '2.2.6', 'room': 'Salon', 
+   'modelName': 'EPanel_300', 'macAddress': 'a4:c1:38:64:4b:2f', 'hardwareVersion': '1.0', 'syncable': True, 'friendlyName': 
+   'EGLOPanel', 'provider': 'BLELight', 'vendor': 'Eglo', 'type': '.ble.tlmesh.light.switch.color.white.dimming.temperature.', 
+   'createdAt': '2020-04-25T14:26:37.550Z', 'updatedAt': '2020-04-25T14:26:37.550Z', 'ACL': {'F8GwIEDaPj': {'read': True, 'write': True}}}
+
+
+
+  [awox] setup config flow entry 
+  
+{'mesh_name': 'F8GwIEDa', 'mesh_password': '31617080', 'mesh_key': '857776bf', 
+'devices': [
+{'mesh_id': 4027, 'name': 'EGLORemote', 'mac': 'a4:c1:38:a7:0f:bb', 'model': 'ERCUm', 'manufacturer': 'Eglo', 'firmware': '2.0.23', 'hardware': '1.0', 'type': '.ble.tlmesh.sensor.rcu.'}, 
+{'mesh_id': 4934, 'name': 'EGLOBulb', 'mac': 'a4:c1:38:66:13:46', 'model': 'ESMLm-c9', 'manufacturer': 'AwoxByEglo', 'firmware': '2.2.6', 'hardware': '1.1', 'type': '.ble.tlmesh.light.switch.color.white.dimming.temperature.'}, 
+{'mesh_id': 10776, 'name': 'EGLO Surface', 'mac': 'a4:c1:38:77:2a:18', 'model': 'EFueva_225s', 'manufacturer': 'Eglo', 'firmware': '1.3.3', 'hardware': '1.0', 'type': '.ble.tlmesh.light.switch.color.white.dimming.temperature.'},
+{'mesh_id': 19247, 'name': 'EGLOPanel', 'mac': 'a4:c1:38:64:4b:2f', 'model': 'EPanel_300', 'manufacturer': 'Eglo', 'firmware': '2.2.6', 'hardware': '1.0', 'type': '.ble.tlmesh.light.switch.color.white.dimming.temperature.'}]}

@@ -8,57 +8,105 @@ import voluptuous as vol
 
 from pprint import pformat
 
-# Import the device class from the component that you want to support
-import homeassistant.helpers.config_validation as cv
-from homeassistant.components.light import (SUPPORT_BRIGHTNESS, ATTR_BRIGHTNESS,
-                                            PLATFORM_SCHEMA, LightEntity)
-from homeassistant.const import CONF_NAME, CONF_MAC
+from typing import Any
+
+
+from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
+from homeassistant.components.light import SUPPORT_BRIGHTNESS
+
+from homeassistant.components.light import (
+    ATTR_BRIGHTNESS,
+    ATTR_COLOR_TEMP,
+    ATTR_RGB_COLOR,
+    LightEntity,
+    ColorMode
+)
+
+from homeassistant.const import (
+    CONF_NAME,
+    CONF_DEVICES,
+    CONF_MAC,
+
+    STATE_ON,
+    STATE_OFF,
+    STATE_UNAVAILABLE,
+)
+from .const import DOMAIN, CONF_MESH_ID, CONF_MANUFACTURER, CONF_MODEL, CONF_FIRMWARE
+
 
 _LOGGER = logging.getLogger("awox")
 
-# Validation of the user's configuration
-PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
-    vol.Optional(CONF_NAME): cv.string,
-    vol.Optional(CONF_MAC): cv.string,
-})
 
+async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities):
+    _LOGGER.debug('entry %s', entry.data[CONF_DEVICES])
 
-def setup_platform(
-    hass: HomeAssistant,
-    config: ConfigType,
-    add_entities: AddEntitiesCallback,
-    discovery_info: DiscoveryInfoType | None = None
-) -> None:
-    """Set up the Awox Light platform."""
-    # Add devices
-    _LOGGER.info(pformat(config))
-    
-    light = {
-        "name": config[CONF_NAME],
-        "mac": config[CONF_MAC]
-    }
-    
-    add_entities([AwoxLight(light)])
+    mesh = hass.data[DOMAIN][entry.entry_id]
+    lights = []
+    for device in entry.data[CONF_DEVICES]:
+        # Skip non lights
+        if 'light' not in device['type']:
+            continue
+        if CONF_MANUFACTURER not in device:
+            device[CONF_MANUFACTURER] = None
+        if CONF_MODEL not in device:
+            device[CONF_MODEL] = None
+        if CONF_FIRMWARE not in device:
+            device[CONF_FIRMWARE] = None
+
+        type_string = ''
+        supported_color_modes = set()
+
+        if 'type' in device:
+            type_string = device['type']
+
+        if 'color' in type_string:
+            supported_color_modes.add(ColorMode.RGB)
+
+        if 'temperature' in type_string:
+            supported_color_modes.add(ColorMode.COLOR_TEMP)
+
+        if 'dimming' in type_string:
+            supported_color_modes.add(ColorMode.BRIGHTNESS)
+
+        if len(supported_color_modes) == 0:
+            supported_color_modes.add(ColorMode.ONOFF)
+
+        light = AwoxLight(mesh, device[CONF_MAC], device[CONF_MESH_ID], device[CONF_NAME], supported_color_modes,
+                          device[CONF_MANUFACTURER], device[CONF_MODEL], device[CONF_FIRMWARE])
+        _LOGGER.info('Setup light [%d] %s', device[CONF_MESH_ID], device[CONF_NAME])
+
+        lights.append(light)
+
+    async_add_entities(lights)
 
 class AwoxLight(LightEntity):
     """Representation of an Awox Light."""
 
-    def __init__(self, light) -> None:
-        """Initialize an Awox Light."""
-        _LOGGER.info(pformat(light))
-        self._light = AwoxMeshLight(light["mac"])
-        self._name = light["name"]
-        self._state = None
-        self._brightness = None
-        self._is_on = None
+    def __init__(self, coordinator: AwoxMeshLight, mac: str, mesh_id: int, name: str, supported_color_modes: set[str] | None,
+                 manufacturer: str, model: str, firmware: str):
+        """Initialize an AwoX MESH Light."""
+        self._mesh = coordinator
+        self._mac = mac
+        self._mesh_id = mesh_id
 
-    @property
-    def name(self) -> str:
-        """Return the display name of this light."""
-        return self._name
+        self._attr_name = name
+        self._attr_unique_id = "awoxmesh-%s" % self._mesh_id
+        self._attr_supported_color_modes = supported_color_modes
+
+        self._manufacturer = manufacturer
+        self._model = model
+        self._firmware = firmware
+
+        self._state = None
+        self._color_mode = False
+        self._red = None
+        self._green = None
+        self._blue = None
+        self._white_temperature = None
+        self._white_brightness = None
+        self._color_brightness = None
+
     
     @property
     def brightness(self):
@@ -79,21 +127,11 @@ class AwoxLight(LightEntity):
         return self._state
 
     async def async_turn_on(self, **kwargs: Any) -> None:
-        """Instruct the light to turn on."""
-        
-        if ATTR_BRIGHTNESS in kwargs:
-            await self._light.set_brightness(kwargs.get(ATTR_BRIGHTNESS, 255))
-            
-        await self._light.turn_on()
+        _LOGGER.info("Turn on...%s", self._mac)
+        await AwoxMeshLight.connect_to_device(self._mac, b'\x01')
+        self._is_on = True
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Instruct the light to turn off."""
         await self._light.turn_off()
 
-    async def async_update(self) -> None:
-        """Fetch new state data for this light.
-
-        This is the only method that should fetch new data for Home Assistant.
-        """
-        self._state = self._light.is_on
-        self._brightness = self._light.brightness
