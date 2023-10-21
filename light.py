@@ -53,7 +53,7 @@ class AwoxLight(LightEntity):
         self._name = light["name"]
         self._state = None
         self._brightness = None
-        self.is_on = None
+        self._is_on = None
 
     @property
     def name(self) -> str:
@@ -74,7 +74,7 @@ class AwoxLight(LightEntity):
         return SUPPORT_BRIGHTNESS
 
     @property
-    def is_on(self) -> bool | None:
+    async def async_is_on(self) -> bool | None:
         """Return true if light is on."""
         return self._state
 
@@ -90,7 +90,7 @@ class AwoxLight(LightEntity):
         """Instruct the light to turn off."""
         await self._light.turn_off()
 
-    def update(self) -> None:
+    async def async_update(self) -> None:
         """Fetch new state data for this light.
 
         This is the only method that should fetch new data for Home Assistant.

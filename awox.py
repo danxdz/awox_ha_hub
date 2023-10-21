@@ -43,6 +43,7 @@ class AwoxMeshLight:
         #self.btdevice = btle.Peripheral ()
         self.session_key = None
         self.command_char = None
+
         mesh_name = ""
         mesh_password = ""
 
@@ -308,7 +309,7 @@ class AwoxMeshLight:
 
 
     @property
-    def is_on(self):
+    async def async_is_on(self):
         """If the switch is currently on or off."""
         _LOGGER.info("is_on :: %s",self._is_on)
 

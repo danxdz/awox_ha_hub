@@ -26,14 +26,6 @@ DEFAULT_NAME = "World"
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Awox controller/hub specific code."""
-    def handle_hello(call):
-        """Handle the service call."""
-        name = call.data.get(ATTR_NAME, DEFAULT_NAME)
-
-        hass.states.set("awox.hello", name)
-
-    hass.services.register(DOMAIN, "hello", handle_hello)
-
 
     # Data that you want to share with your platforms
     hass.states.async_set('awox.user', 'Andrea')

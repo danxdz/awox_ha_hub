@@ -8,7 +8,6 @@ from homeassistant.const import (
     CONF_PASSWORD
 )
 
-from .const import DOMAIN
 
 from .const import DOMAIN, CONF_MESH_NAME, CONF_MESH_PASSWORD, CONF_MESH_KEY
 
@@ -19,7 +18,7 @@ _LOGGER = logging.getLogger(__name__)
 class AwoxFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     VERSION = 1
 
-    async def async_step_awox_connect(self, user_input: Optional[Mapping] = None):
+    async def async_step_awox_connect(self, user_input: dict = None): 
 
         errors = {}
         username: str = ''
