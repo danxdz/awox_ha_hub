@@ -28,9 +28,6 @@ SERV_CHAR_UUID = '00010203-0405-0607-0809-0a0b0c0d1913'
 
 C_POWER = 0xd0
 
-def notification_handler(characteristic: BleakGATTCharacteristic , data: bytearray):
-    """Simple notification handler which prints the data received."""
-    print("notification :: ", characteristic.description, " :: ", data)
 
 class AwoxMeshLight:
     def __init__ (self, hass: HomeAssistant, mesh_name: str, mesh_password: str, mesh_long_term_key: str):
@@ -50,11 +47,6 @@ class AwoxMeshLight:
         self.session_key = None
         self.command_char = None
 
-        self._mesh_name = mesh_name.encode ()
-        self._mesh_password = mesh_password.encode ()
-        self._mesh_long_term_key = mesh_long_term_key
-
-        
 
         # Light status
         self.white_brightness = None
@@ -320,13 +312,3 @@ class AwoxMeshLight:
         _LOGGER.info("is_on :: %s",self._is_on)
 
         return self._is_on
-
-    async def async_turn_on(self):
-        _LOGGER.info("Turn on...")
-        await self.connect_to_device(b'\x01')
-        self._is_on = True
-
-    async def async_turn_off(self):
-        _LOGGER.info("Turn off...")
-        await self.connect_to_device(b'\x00')
-        self._is_on = False

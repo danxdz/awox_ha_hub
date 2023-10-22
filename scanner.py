@@ -8,7 +8,7 @@ from homeassistant.core import HomeAssistant
 
 from bleak import BleakClient, BleakScanner
 
-_LOGGER = logging.getLogger(__name__)
+_LOGGER = logging.getLogger("awox")
 
 START_MAC_ADDRESS = "A4:C1"
 
@@ -21,28 +21,26 @@ class DeviceScanner:
     @staticmethod
     async def async_find_devices(hass: HomeAssistant, scan_timeout: int = 30):
         def init():
-            _LOGGER.debug('Initializing scanner...')
+            _LOGGER.info('Initializing scanner...')
        
         devices = {}
 
         try:
-            bl = await hass.async_add_executor_job(init)
             _LOGGER.info("Scanning %d seconds for AwoX bluetooth mesh devices!", scan_timeout)
-            await hass.async_add_executor_job(bl.start_scan)
-            await asyncio.sleep(scan_timeout)
-
-            for mac, dev in (await hass.async_add_executor_job(bl.get_available_devices)).items():
-                if mac.startswith(START_MAC_ADDRESS):
-                    devices[mac] = dev
-
-            _LOGGER.debug('Found devices: %s', devices)
-
-            await hass.async_add_executor_job(bl.stop_scan)
-
-            async with async_timeout.timeout(10):
-                await hass.async_add_executor_job(bl.shutdown)
+            devices = await BleakScanner.discover(timeout=scan_timeout)
+            
+            _LOGGER.info('Found devices: %s', devices)
+            selDevice = {}
+            i = 0
+            for device in devices:
+                i = i + 1
+                if device.address.startswith(START_MAC_ADDRESS): #== "A4:C1:38:77:2A:18":
+                    selDevice.update({i: device})
+                    _LOGGER.info("Found device: %s", selDevice)
+                    
+            _LOGGER.info("Found %s devices", len(selDevice))
 
         except Exception as e:
             _LOGGER.exception('Find devices process error: %s', e)
 
-        return devices
+        return selDevice

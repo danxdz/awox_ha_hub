@@ -39,7 +39,7 @@ _LOGGER = logging.getLogger("awox")
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities):
-    _LOGGER.debug('entry %s', entry.data[CONF_DEVICES])
+    _LOGGER.info('entry %s', entry.data[CONF_DEVICES])
 
     mesh = hass.data[DOMAIN][entry.entry_id]
     lights = []
@@ -127,11 +127,19 @@ class AwoxLight(LightEntity):
         return self._state
 
     async def async_turn_on(self, **kwargs: Any) -> None:
-        _LOGGER.info("Turn on...%s", self._mac)
+        """Instruct the light to turn on."""
+        status = {}
+
+        _LOGGER.info("Turn on...%s : %s", self, kwargs)
         await AwoxMeshLight.connect_to_device(self._mac, b'\x01')
+
         self._is_on = True
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Instruct the light to turn off."""
-        await self._light.turn_off()
+        _LOGGER.info("Turn off...%s : %s", self, kwargs)
+        await AwoxMeshLight.connect_to_device(self._mac, b'\x00')
+
+        self._is_on = False
+
 

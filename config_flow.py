@@ -54,8 +54,8 @@ class AwoxMeshFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
 
         if username and password:
             try:
-                _LOGGER.debug('Trying to login to AwoX Smart Connect...')
-                _LOGGER.debug('Username: %s', username)
+                _LOGGER.info('Trying to login to AwoX Smart Connect...')
+                _LOGGER.info('Username: %s', username)
                 
                 awox_connect = await self.hass.async_add_executor_job(create_awox_connect_object, username, password)
             except Exception as e:
@@ -74,7 +74,7 @@ class AwoxMeshFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
 
         devices = []
         for device in await self.hass.async_add_executor_job(awox_connect.devices):
-            _LOGGER.debug('Processing device - %s', device)
+            _LOGGER.info('Processing device - %s', device)
             if 'type' not in device:
                 _LOGGER.warning('Skipped device, missing type - %s', device)
                 continue
@@ -128,7 +128,7 @@ class AwoxMeshFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
 
     async def async_step_mesh_info(self, user_input: Optional[Mapping] = None):
 
-        _LOGGER.debug("async_step_mesh_info: user_input: %s", user_input)
+        _LOGGER.info("async_step_mesh_info: user_input: %s", user_input)
 
         errors = {}
         name: str = ''
@@ -184,7 +184,7 @@ class AwoxMeshFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             mesh_key: str
     ):
         """Create an entry from discovery."""
-        _LOGGER.debug(
+        _LOGGER.info(
             "_async_create_entry_from_discovery: device: %s [%s]",
             name,
             mac

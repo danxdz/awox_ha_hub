@@ -1,3 +1,9 @@
+#Thanks a lot to fsaris for the code
+#CREDITS: fsaris
+#code from
+#https://github.com/fsaris/home-assistant-awox/blob/main/custom_components/awox/awox_connect.py
+
+
 """Awox connect API"""
 import requests
 import json
