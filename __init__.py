@@ -10,12 +10,11 @@ from .const import DOMAIN, CONF_MESH_NAME, CONF_MESH_PASSWORD, CONF_MESH_KEY
 from .awox import AwoxMeshLight
 
 from homeassistant.components.light import DOMAIN as LIGHT_DOMAIN
-from homeassistant.core import HomeAssistant, ServiceCall, callback
+from homeassistant.core import HomeAssistant
 from homeassistant.helpers.typing import ConfigType
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant
 
-
+from homeassistant.components import bluetooth
 
 PLATFORMS = [LIGHT_DOMAIN]
 
@@ -29,8 +28,16 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
 
     # Data that you want to share with your platforms
     hass.states.async_set('awox.user', 'Andrea')
+    hass.states.async_set('awox.mac', "A4:C1:38:77:2A:18")
+    
+    
+    bledevice = bluetooth.async_scanner_devices_by_address(hass , "A4:C1:38:77:2A:18" , connectable=True)
+    _LOGGER.info('bledevice %s', bledevice)
+
 
     hass.data[DOMAIN] = {}
+
+
 
 
     # Return boolean to indicate that initialization was successfully.

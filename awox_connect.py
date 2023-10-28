@@ -17,7 +17,7 @@ AWOX_CONNECT_CLIENT_KEY = 'PyR3yV65rytEicteNlQHSVNpAGvCByOrsLiEqJtI'
 class AwoxConnect:
 
     def __init__(self, username: str, password: str, installation_id: str = None):
-        self._username = username
+        self._username = username.lower() #Awox Connect API requires lowercase username
         self._password = password
 
         self._object_id = None

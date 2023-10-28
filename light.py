@@ -15,6 +15,8 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.components.light import SUPPORT_BRIGHTNESS
 
+from homeassistant.components import bluetooth
+
 from homeassistant.components.light import (
     ATTR_BRIGHTNESS,
     ATTR_COLOR_TEMP,
@@ -42,6 +44,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     _LOGGER.info('entry %s', entry.data[CONF_DEVICES])
 
     mesh = hass.data[DOMAIN][entry.entry_id]
+
+    """Set up the example BLE sensors."""
+    coordinator: PassiveBluetoothProcessorCoordinator = hass.data[DOMAIN][
+        entry.entry_id
+    ]
+
     lights = []
     for device in entry.data[CONF_DEVICES]:
         # Skip non lights
@@ -71,9 +79,21 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
 
         if len(supported_color_modes) == 0:
             supported_color_modes.add(ColorMode.ONOFF)
+    
+        count = bluetooth.async_scanner_count(hass, connectable=True)
+        _LOGGER.info('count %s', count)
+        _LOGGER.info('device %s', device[CONF_MAC])
+        mac = device[CONF_MAC].upper()
+        _LOGGER.info('mac %s', mac)
+        bledevice2 = bluetooth.async_ble_device_from_address(hass , "A4:C1:38:77:2A:18" , connectable=True)
+        bledevice = bluetooth.async_ble_device_from_address(hass , mac , connectable=True)
+
+        _LOGGER.info('ble_device %s', bledevice)
+        _LOGGER.info('ble_device2 %s', bledevice2)
+        _LOGGER.info('ble_device %s', device)
 
         light = AwoxLight(mesh, device[CONF_MAC], device[CONF_MESH_ID], device[CONF_NAME], supported_color_modes,
-                          device[CONF_MANUFACTURER], device[CONF_MODEL], device[CONF_FIRMWARE])
+                          device[CONF_MANUFACTURER], device[CONF_MODEL], device[CONF_FIRMWARE], bledevice)
         _LOGGER.info('Setup light [%d] %s', device[CONF_MESH_ID], device[CONF_NAME])
 
         lights.append(light)
@@ -84,11 +104,12 @@ class AwoxLight(LightEntity):
     """Representation of an Awox Light."""
 
     def __init__(self, coordinator: AwoxMeshLight, mac: str, mesh_id: int, name: str, supported_color_modes: set[str] | None,
-                 manufacturer: str, model: str, firmware: str):
+                 manufacturer: str, model: str, firmware: str, ble_device):
         """Initialize an AwoX MESH Light."""
         self._mesh = coordinator
         self._mac = mac
         self._mesh_id = mesh_id
+        self._ble = ble_device
 
         self._attr_name = name
         self._attr_unique_id = "awoxmesh-%s" % self._mesh_id
@@ -128,18 +149,14 @@ class AwoxLight(LightEntity):
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Instruct the light to turn on."""
-        status = {}
-
-        _LOGGER.info("Turn on...%s : %s", self, kwargs)
-        await AwoxMeshLight.connect_to_device(self._mac, b'\x01')
-
+        _LOGGER.info("Turn on...%s : %s", self._ble, kwargs)
+        await AwoxMeshLight.connect_to_device(self._ble, b'\x01')
         self._is_on = True
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Instruct the light to turn off."""
         _LOGGER.info("Turn off...%s : %s", self, kwargs)
-        await AwoxMeshLight.connect_to_device(self._mac, b'\x00')
-
+        await AwoxMeshLight.connect_to_device(self._ble, b'\x00')
         self._is_on = False
 
 

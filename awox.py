@@ -16,9 +16,9 @@ _LOGGER = logging.getLogger("awox")
 
 from .const import DOMAIN
 
-from homeassistant.core import HomeAssistant, callback, CALLBACK_TYPE
-from homeassistant.const import EVENT_HOMEASSISTANT_STARTED, EVENT_HOMEASSISTANT_STOP
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+from homeassistant.core import HomeAssistant
+
+from homeassistant.components import bluetooth
 
 PAIR_CHAR_UUID = '00010203-0405-0607-0809-0a0b0c0d1914'
 COMMAND_CHAR_UUID = '00010203-0405-0607-0809-0a0b0c0d1912'
@@ -43,7 +43,7 @@ class AwoxMeshLight:
         
         self.mac = "A4:C1:38:77:2A:18"
         self.mesh_id = 0
-        #self.btdevice = btle.Peripheral ()
+
         self.session_key = None
         self.command_char = None
 
@@ -182,27 +182,20 @@ class AwoxMeshLight:
     
 
     @staticmethod
-    async def connect_to_device(mac, switch):
+    async def connect_to_device(ble_device, switch):
 
+               
 
-        _LOGGER.info("Searching devices...")
-        devices = await BleakScanner.discover()
-        i=0
-        for device in devices:
-            i = i + 1
-            _LOGGER.info("%s :: %s ",i, device)
-            if device.address == mac.upper():
-                selDevice = device
-                _LOGGER.info("Found device: ",device)
-                break
+   
+        _LOGGER.info("BLE device : ",ble_device)
 
-
+    
         try:
 
-            _LOGGER.info("Connecting to device... %s", selDevice.address)
-            async with BleakClient(selDevice,disconnected_callback=None,timeout=15) as client:
+            _LOGGER.info("Connecting to device... %s", ble_device)
+            async with BleakClient(ble_device ,disconnected_callback=None,timeout=15) as client:
 
-                _LOGGER.info("Connecting... %s", selDevice.name)
+                _LOGGER.info("Connecting... %s", ble_device)
 
                 if client.is_connected:
                     _LOGGER.info("Connected: ",client.address)

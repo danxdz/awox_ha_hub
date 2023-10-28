@@ -2,7 +2,6 @@
 
 from typing import Mapping, Optional
 import logging
-import pygatt
 
 import voluptuous as vol
 
@@ -11,7 +10,7 @@ from homeassistant.const import (
     CONF_USERNAME,
     CONF_PASSWORD
 )
-from .scanner import DeviceScanner
+
 from .const import DOMAIN, CONF_MESH_NAME, CONF_MESH_PASSWORD, CONF_MESH_KEY
 from .awox_connect import AwoxConnect
 
