@@ -80,21 +80,22 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
         if len(supported_color_modes) == 0:
             supported_color_modes.add(ColorMode.ONOFF)
     
-        count = bluetooth.async_scanner_count(hass, connectable=True)
-        _LOGGER.info('count %s', count)
-        _LOGGER.info('device %s', device[CONF_MAC])
+        #count = bluetooth.async_scanner_count(hass, connectable=True)
+        #_LOGGER.info('count %s', count)
+
         mac = device[CONF_MAC].upper()
         _LOGGER.info('mac %s', mac)
-        bledevice2 = bluetooth.async_ble_device_from_address(hass , "A4:C1:38:77:2A:18" , connectable=True)
+        
         bledevice = bluetooth.async_ble_device_from_address(hass , mac , connectable=True)
-
         _LOGGER.info('ble_device %s', bledevice)
-        _LOGGER.info('ble_device2 %s', bledevice2)
-        _LOGGER.info('ble_device %s', device)
+        
+        service_info = bluetooth.async_last_service_info(hass, mac, connectable=True)
+        _LOGGER.info('service_info %s', service_info)
 
         light = AwoxLight(mesh, device[CONF_MAC], device[CONF_MESH_ID], device[CONF_NAME], supported_color_modes,
                           device[CONF_MANUFACTURER], device[CONF_MODEL], device[CONF_FIRMWARE], bledevice)
-        _LOGGER.info('Setup light [%d] %s', device[CONF_MESH_ID], device[CONF_NAME])
+        
+        _LOGGER.info(' :: Setup light [%d] %s', device[CONF_MESH_ID], device[CONF_NAME])
 
         lights.append(light)
 

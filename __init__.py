@@ -28,10 +28,10 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
 
     # Data that you want to share with your platforms
     hass.states.async_set('awox.user', 'Andrea')
-    hass.states.async_set('awox.mac', "A4:C1:38:77:2A:18")
     
     
     bledevice = bluetooth.async_scanner_devices_by_address(hass , "A4:C1:38:77:2A:18" , connectable=True)
+    hass.states.async_set('awox.nDevices', bledevice)
     _LOGGER.info('bledevice %s', bledevice)
 
 
