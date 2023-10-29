@@ -18,28 +18,17 @@ from homeassistant.components import bluetooth
 
 PLATFORMS = [LIGHT_DOMAIN]
 
-_LOGGER = logging.getLogger("awox")
+_LOGGER = logging.getLogger(DOMAIN)
 
-ATTR_NAME = "name"
-DEFAULT_NAME = "World"
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Awox controller/hub specific code."""
 
-    # Data that you want to share with your platforms
-    hass.states.async_set('awox.user', 'Andrea')
-    
-    
-    bledevice = bluetooth.async_scanner_devices_by_address(hass , "A4:C1:38:77:2A:18" , connectable=True)
-    hass.states.async_set('awox.nDevices', bledevice)
-    _LOGGER.info('bledevice %s', bledevice)
-
+    service_infos = bluetooth.async_discovered_service_info(hass, connectable=True)
+    for service_info in service_infos:
+        _LOGGER.info('service_info %s', service_info)
 
     hass.data[DOMAIN] = {}
-
-
-
-
     # Return boolean to indicate that initialization was successfully.
     return True
 
@@ -47,8 +36,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up awox light via a config (flow) entry."""
 
     _LOGGER.info('setup config flow entry %s', entry.data)
-    _LOGGER.info('setup config flow entry %s', entry.options)
-
 
     mesh = AwoxMeshLight(hass, entry.data[CONF_MESH_NAME], entry.data[CONF_MESH_PASSWORD], entry.data[CONF_MESH_KEY])
 

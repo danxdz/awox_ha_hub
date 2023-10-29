@@ -3,7 +3,7 @@
     "name": "Awox light control hub",
     "requirements": ["bleak", "Cripto"],
     "integration_type": "hub",
-    "iot_class": "local_polling",
+    "iot_class": "assumed_state",
     "version": "0.1.0",
     "config_flow": true,
     "bluetooth": [

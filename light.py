@@ -3,13 +3,9 @@ from __future__ import annotations
 
 import logging
 
-from .awox import AwoxMeshLight
-import voluptuous as vol
-
-from pprint import pformat
-
 from typing import Any
 
+from .awox import AwoxMeshLight
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -34,22 +30,20 @@ from homeassistant.const import (
     STATE_OFF,
     STATE_UNAVAILABLE,
 )
-from .const import DOMAIN, CONF_MESH_ID, CONF_MANUFACTURER, CONF_MODEL, CONF_FIRMWARE
+from .const import DOMAIN, CONF_MESH_ID, CONF_MANUFACTURER, CONF_MODEL, CONF_FIRMWARE, CONF_MESH_NAME, CONF_MESH_PASSWORD
 
 
 _LOGGER = logging.getLogger("awox")
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities):
-    _LOGGER.info('entry %s', entry.data[CONF_DEVICES])
+    _LOGGER.info('entry %s', entry.data)
+
 
     mesh = hass.data[DOMAIN][entry.entry_id]
 
-    """Set up the example BLE sensors."""
-    coordinator: PassiveBluetoothProcessorCoordinator = hass.data[DOMAIN][
-        entry.entry_id
-    ]
-
+    _LOGGER.info('mesh %s', mesh)
+    
     lights = []
     for device in entry.data[CONF_DEVICES]:
         # Skip non lights
@@ -89,8 +83,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
         bledevice = bluetooth.async_ble_device_from_address(hass , mac , connectable=True)
         _LOGGER.info('ble_device %s', bledevice)
         
-        service_info = bluetooth.async_last_service_info(hass, mac, connectable=True)
-        _LOGGER.info('service_info %s', service_info)
 
         light = AwoxLight(mesh, device[CONF_MAC], device[CONF_MESH_ID], device[CONF_NAME], supported_color_modes,
                           device[CONF_MANUFACTURER], device[CONF_MODEL], device[CONF_FIRMWARE], bledevice)
@@ -150,14 +142,14 @@ class AwoxLight(LightEntity):
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Instruct the light to turn on."""
-        _LOGGER.info("Turn on...%s : %s", self._ble, kwargs)
-        await AwoxMeshLight.connect_to_device(self._ble, b'\x01')
+        _LOGGER.info("Turn on...%s", self._ble)
+        await AwoxMeshLight.connect_to_device(self._ble, b'\x01', self._mesh._mesh_name , self._mesh.mesh_password)
         self._is_on = True
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Instruct the light to turn off."""
-        _LOGGER.info("Turn off...%s : %s", self, kwargs)
-        await AwoxMeshLight.connect_to_device(self._ble, b'\x00')
+        _LOGGER.info("Turn off...%s ", self._ble)
+        await AwoxMeshLight.connect_to_device(self._ble, b'\x00', self._mesh._mesh_name , self._mesh.mesh_password)
         self._is_on = False
 
 

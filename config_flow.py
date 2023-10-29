@@ -20,7 +20,6 @@ _LOGGER = logging.getLogger(__name__)
 def create_awox_connect_object(username, password) -> AwoxConnect:
     return AwoxConnect(username, password)
 
-
 class AwoxMeshFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle a Awox config flow."""
 
@@ -37,8 +36,6 @@ class AwoxMeshFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_user(self, user_input: Optional[Mapping] = None):
 
         return await self.async_step_awox_connect()
-
-
 
     async def async_step_awox_connect(self, user_input: Optional[Mapping] = None):
 
