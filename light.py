@@ -142,14 +142,21 @@ class AwoxLight(LightEntity):
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Instruct the light to turn on."""
-        _LOGGER.info("Turn on...%s", self._ble)
-        await AwoxMeshLight.connect_to_device(self._ble, b'\x01', self._mesh._mesh_name , self._mesh.mesh_password)
-        self._is_on = True
+        if self._ble is not None:
+            _LOGGER.info("Turn on...%s", self._ble)
+            await AwoxMeshLight.connect_to_device(self._ble, b'\x01', self._mesh._mesh_name , self._mesh.mesh_password)
+            self._is_on = True
+        else:
+            _LOGGER.info("No light detected")
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Instruct the light to turn off."""
-        _LOGGER.info("Turn off...%s ", self._ble)
-        await AwoxMeshLight.connect_to_device(self._ble, b'\x00', self._mesh._mesh_name , self._mesh.mesh_password)
-        self._is_on = False
+        if self._ble is not None:
+            _LOGGER.info("Turn off...%s ", self._ble)
+            await AwoxMeshLight.connect_to_device(self._ble, b'\x00', self._mesh._mesh_name , self._mesh.mesh_password)
+            self._is_on = False
+        else:
+            _LOGGER.info("No light detected")
+
 
 

@@ -231,6 +231,8 @@ class AwoxMeshLight:
                         await AwoxMeshLight.writeCommand (C_POWER, switch ,session_key,client)
                         disc = await client.disconnect ()
                         _LOGGER.info("Disconnected: {0}".format(disc))
+
+                        return True
                         
                     else :
                         if pair_char[0] == 0xe :
@@ -257,19 +259,11 @@ class AwoxMeshLight:
         
         #def make_command_packet (key, address, dest_id, command, data):
         packet = AwoxMeshLight.make_command_packet (session_key, client.address, 0, command, data)
+        _LOGGER.info("packet send to : %s ",client.address)
 
-        _LOGGER.info("packet created: %s ",packet)
-
-        read = await client.read_gatt_char(COMMAND_CHAR_UUID)
-        _LOGGER.info("read: %s",read)
-
-        resp = await client.write_gatt_char(COMMAND_CHAR_UUID, packet, True)
-        _LOGGER.info("cmd resp data: %s",resp)
-
-        readresp = await client.read_gatt_char(COMMAND_CHAR_UUID)
-        _LOGGER.info("read resp: %s",readresp)
-
-
+        await client.read_gatt_char(COMMAND_CHAR_UUID)
+        await client.write_gatt_char(COMMAND_CHAR_UUID, packet, True)
+        await client.read_gatt_char(COMMAND_CHAR_UUID)
 
     @property
     async def async_is_on(self):
