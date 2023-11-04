@@ -120,6 +120,7 @@ class AwoxLight(LightEntity):
         self._white_temperature = None
         self._white_brightness = None
         self._color_brightness = None
+        self._brightness = None
 
     
     @property
@@ -136,25 +137,40 @@ class AwoxLight(LightEntity):
         return SUPPORT_BRIGHTNESS
 
     @property
-    async def async_is_on(self) -> bool | None:
+    def is_on(self) -> bool | None:
         """Return true if light is on."""
-        return self._state
+        return bool(self._state)
 
     async def async_turn_on(self, **kwargs: Any) -> None:
+        status = {}
         """Instruct the light to turn on."""
         if self._ble is not None:
             _LOGGER.info("Turn on...%s", self._ble)
-            await AwoxMeshLight.connect_to_device(self._ble, b'\x01', self._mesh._mesh_name , self._mesh.mesh_password)
-            self._is_on = True
+            resp = await AwoxMeshLight.connect_to_device(self._ble, b'\x01', self._mesh._mesh_name , self._mesh.mesh_password)
+            _LOGGER.info("Turned on...%s ", resp)
+            if resp is True:
+                self._is_on = True
+                status['state'] = True
+                self._state = status['state'] 
+                _LOGGER.info("Turned on...%s ", self._state)
         else:
             _LOGGER.info("No light detected")
 
+
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Instruct the light to turn off."""
+        status = {}
+
         if self._ble is not None:
             _LOGGER.info("Turn off...%s ", self._ble)
-            await AwoxMeshLight.connect_to_device(self._ble, b'\x00', self._mesh._mesh_name , self._mesh.mesh_password)
-            self._is_on = False
+            resp = await AwoxMeshLight.connect_to_device(self._ble, b'\x00', self._mesh._mesh_name , self._mesh.mesh_password)
+            _LOGGER.info("Turned off...%s ", resp)
+            if resp is True:
+                self._is_on = False
+                status['state'] = False
+                self._state = status['state']
+                _LOGGER.info("Turned off...%s ", self._state)
+
         else:
             _LOGGER.info("No light detected")
 

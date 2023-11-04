@@ -265,9 +265,3 @@ class AwoxMeshLight:
         await client.write_gatt_char(COMMAND_CHAR_UUID, packet, True)
         await client.read_gatt_char(COMMAND_CHAR_UUID)
 
-    @property
-    async def async_is_on(self):
-        """If the switch is currently on or off."""
-        _LOGGER.info("is_on :: %s",self._is_on)
-
-        return self._is_on
