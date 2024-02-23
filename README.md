@@ -2,7 +2,7 @@ Home Assistant Awox lights integration
 
 requires Bleak and Crypto libs to control BLE.
 
-requires HACS installed on HA ( i think )
+requires HACS installed on HA ( i think, not tested w/ it )
 
 ---
 
