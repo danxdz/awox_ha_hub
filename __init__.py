@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import logging
-
+import asyncio
 
 from .const import DOMAIN, CONF_MESH_NAME, CONF_MESH_PASSWORD, CONF_MESH_KEY
 
@@ -49,19 +49,22 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 async def async_unload_entry(hass, entry) -> bool:
     """Unload a config entry."""
-    _LOGGER.info('Unload entry %s', entry.entry_id)
-    if entry.entry_id in hass.data[DOMAIN]:
-        await hass.data[DOMAIN][entry.entry_id].async_shutdown()
+    _LOGGER.info("Unload entry %s", entry.entry_id)
 
-    unload_ok = all(
-        await asyncio.gather(
-            *[
-                hass.config_entries.async_forward_entry_unload(entry, component)
-                for component in PLATFORMS
-            ]
-        )
+    if entry.entry_id in hass.data[DOMAIN]:
+        mesh = hass.data[DOMAIN][entry.entry_id]
+        if hasattr(mesh, "async_shutdown"):
+            await mesh.async_shutdown()
+
+    unload_results = await asyncio.gather(
+        *[
+            hass.config_entries.async_forward_entry_unload(entry, component)
+            for component in PLATFORMS
+        ]
     )
-    if unload_ok:
+    unload_ok = all(unload_results)
+
+    if unload_ok and entry.entry_id in hass.data[DOMAIN]:
         hass.data[DOMAIN].pop(entry.entry_id)
 
     return unload_ok

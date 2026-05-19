@@ -2,7 +2,7 @@ Home Assistant Awox lights integration
 
 requires Bleak and Crypto libs to control BLE.
 
-requires HACS installed on HA ( i think, not tested w/ it )
+requires HACS installed on HA ( i think )
 
 ---
 
@@ -17,6 +17,6 @@ https://github.com/fsaris/EspHome-AwoX-BLE-mesh-hub
 https://github.com/fsaris/home-assistant-awox
 
 
-check out his findle to get your credencials ( mesh_name , mesh_key )
+check out is findle to get your credencials ( mesh_name , mesh_key )
 
-https://jsfiddle.net/fsaris/uncm54vb/37/
+https://jsfiddle.net/fsaris/uncm54vb/37/ https://jsfiddle.net/cooldan/xfm590e4/

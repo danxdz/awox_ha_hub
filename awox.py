@@ -7,6 +7,11 @@ from Crypto.Cipher import AES
 
 from bleak import BleakClient, BleakScanner
 
+from homeassistant.components.bluetooth import async_ble_device_from_address
+from homeassistant.components.bluetooth import async_get_scanner
+from habluetooth import BluetoothServiceInfoBleak
+from bleak_retry_connector import establish_connection
+
 
 from bleak.backends.characteristic import BleakGATTCharacteristic
 
@@ -70,7 +75,10 @@ class AwoxMeshLight:
         self._attr_device_info = ...  # For automatic device registration
         self._attr_unique_id = ...
 
-        
+    async def async_shutdown(self):
+        """Clean shutdown for Home Assistant unload."""
+        return
+
         
 
     @staticmethod
@@ -184,69 +192,81 @@ class AwoxMeshLight:
         packet += enc[0:8]
         return packet
 
-    
+
 
     @staticmethod
     async def connect_to_device(ble_device, switch, awox_name, awox_pass):
 
         _LOGGER.info("Device to connect :: %s", ble_device)
-    
+
+        client = None
+
         try:
-            async with BleakClient(ble_device ,disconnected_callback=None,timeout=15) as client:
+            client = await establish_connection(
+                BleakClient,
+                ble_device,
+                ble_device.address,
+                disconnected_callback=None,
+                timeout=15,
+            )
 
-                _LOGGER.info("Connecting to %s...", ble_device)
+            _LOGGER.info("Connecting to %s...", ble_device)
 
-                if client.is_connected:
-                    _LOGGER.info("Connected to : ", client.address)                    
-                
-                    pair_char = await client.read_gatt_char(PAIR_CHAR_UUID)
+            if client.is_connected:
+                _LOGGER.info("Connected to : %s", client.address)
 
-                    name = awox_name
-                    key = awox_pass
+                pair_char = await client.read_gatt_char(PAIR_CHAR_UUID)
 
-                    name = name.encode()
-                    key = key.encode()
-                            
-                    # Gerar um número aleatório de 8 bytes
-                    session_random =  urandom(8)
-                
-                    packet = AwoxMeshLight.make_pair_packet(name, key, session_random)
+                name = awox_name.encode()
+                key = awox_pass.encode()
 
-                    resp = await client.write_gatt_char(PAIR_CHAR_UUID, packet,response=True)
+                session_random = urandom(8)
 
-                    status_char = await client.read_gatt_char(STATUS_CHAR_UUID)
+                packet = AwoxMeshLight.make_pair_packet(name, key, session_random)
 
-                    resp = await client.write_gatt_char (STATUS_CHAR_UUID,b'\x01',response=True)
-            
-                    pair_char = await client.read_gatt_char(PAIR_CHAR_UUID)
+                await client.write_gatt_char(PAIR_CHAR_UUID, packet, response=True)
 
-                    if pair_char[0] == 0xd :
-                        session_key = AwoxMeshLight.make_session_key (name, key, session_random, pair_char[1:9])
-                        
-                        _LOGGER.info("Paired.")
+                await client.read_gatt_char(STATUS_CHAR_UUID)
 
-                        #delay 5 seconds
-                        await asyncio.sleep(2.0)
+                await client.write_gatt_char(STATUS_CHAR_UUID, b'\x01', response=True)
 
-                        await AwoxMeshLight.writeCommand (C_POWER, switch ,session_key,client)
-                        disc = await client.disconnect ()
-                        _LOGGER.info("Disconnected: {0}".format(disc))
+                pair_char = await client.read_gatt_char(PAIR_CHAR_UUID)
 
-                        return True
-                        
-                    else :
-                        if pair_char[0] == 0xe :
-                            _LOGGER.info("Auth error : check name and password.")
-                        else :
-                            _LOGGER.info("Unexpected pair value : %s", repr (pair_char))
-                        await client.disconnect ()
-                        return False
+                if pair_char[0] == 0x0D:
+                    session_key = AwoxMeshLight.make_session_key(
+                        name, key, session_random, pair_char[1:9]
+                    )
+
+                    _LOGGER.info("Paired.")
+
+                    await asyncio.sleep(2.0)
+
+                    await AwoxMeshLight.writeCommand(C_POWER, switch, session_key, client)
+
+                    await client.disconnect()
+                    _LOGGER.info("Disconnected")
+
+                    return True
+
+                else:
+                    if pair_char[0] == 0x0E:
+                        _LOGGER.info("Auth error : check name and password.")
+                    else:
+                        _LOGGER.info("Unexpected pair value : %s", repr(pair_char))
+
+                    await client.disconnect()
+                    return False
+
         except Exception as e:
-            _LOGGER.info("Error: {0}".format(e))
-            #await AwoxMeshLight.connect_to_device()
+            _LOGGER.info("Error: %s", e)
             return False
 
-
+        finally:
+            if client and client.is_connected:
+                await client.disconnect()
+                
+                
+                
     async def writeCommand (command, data,session_key,client ,dest = None):
         """
         Args:
